@@ -183,7 +183,7 @@ def get_model_2(num_users, num_items):
 
 def main():
     learning_rate = 0.001
-    num_epochs = 30
+    num_epochs = 50
     verbose = 1
     topK = 10
     evaluation_threads = 1
@@ -230,9 +230,9 @@ def main():
                   % (epoch, t2 - t1, hr, ndcg, loss, time() - t2))
             if hr > best_hr:
                 best_hr = hr
-                if hr > 0.6:
-                    model.save_weights('Pretrain/movielens_1m_only_global_neg_%d_hr_%.4f_ndcg_%.4f.h5' %
-                                       (num_negatives, hr, ndcg), overwrite=True)
+#                if hr > 0.6:
+#                    model.save_weights('Pretrain/movielens_1m_only_global_neg_%d_hr_%.4f_ndcg_%.4f.h5' %
+#                                      (num_negatives, hr, ndcg), overwrite=True)
             if ndcg > best_ndcg:
                 best_ndcg = ndcg
     endTime = time()
