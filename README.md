@@ -1,5 +1,5 @@
-## EACoupleCF
-This is about the code implementation of the paper EACoupleCF
+## EACoupledCF
+This is about the code implementation of the paper EACoupledCF
 
 ## Citation
 '''
