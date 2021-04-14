@@ -50,7 +50,8 @@ Tafeng:
   *rating.data
   *user.data
  
- 
+## program 
+    Consisted by coulpecf、neumf、EACoupledCF.
 ## Enviroment
   python 3.6.12
   keras 2.1.4
