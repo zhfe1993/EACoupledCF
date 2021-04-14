@@ -99,16 +99,9 @@ def get_model_3(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-    # Concatenate  组合
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
-
-    # Multiply  组合
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-
-    # Concatenate + Multiply 组合
-    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    # id_2 = Concatenate()([dense_1, dense_2, dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
-    id_1 = Concatenate()([id_1, id_2])
+    # id_1 = Concatenate()([id_1, id_2])
 
     id_1 = Dense(32)(id_1)
 

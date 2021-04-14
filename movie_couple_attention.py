@@ -140,16 +140,9 @@ def get_model_0(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-    # Concatenate  组合
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-
-    # Multiply  组合
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-
-    # Concatenate + Multiply 组合
-    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    # id_2 = Concatenate()([dense_1, dense_2, dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
-    id_1 = Concatenate()([id_2, id_1])
+    # id_1 = Concatenate()([id_2, id_1])
 
     id_1 = Dense(32)(id_1)
     id_1 = Flatten()(Activation('relu')(id_1))
@@ -184,8 +177,6 @@ def get_model_1(num_users, num_items):
     merge_attr_embedding = Lambda(lambda x: K.batch_dot(x[0], x[1], axes=[1, 2]))(
         [user_attr_embedding, item_attr_embedding])
 
-    # merge_attr_embedding_global = Flatten()(merge_attr_embedding)
-
     merge_attr_embedding = Reshape((8, 8, 1))(merge_attr_embedding)
 
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
@@ -198,7 +189,6 @@ def get_model_1(num_users, num_items):
     merge_attr_embedding = Activation('relu')(merge_attr_embedding)
 
     merge_attr_embedding = Flatten()(merge_attr_embedding)
-    # merge_attr_embedding = Concatenate()([merge_attr_embedding, merge_attr_embedding_global])
 
     attr_1 = Dense(16)(merge_attr_embedding)
     attr_1 = Activation('relu')(attr_1)
@@ -218,8 +208,6 @@ def get_model_1(num_users, num_items):
 
     u_i_dot = Flatten()(merge([user_id_Embedding, item_id_Embedding], mode='dot'))
     u_i_cos = Flatten()(merge([user_id_Embedding, item_id_Embedding], mode='cos'))
-    # u_i_cos = -K.mean((K.l2_normalize(user_id_Embedding, axis=-1) * K.l2_normalize(item_id_Embedding, axis=-1)),
-    #                   axis=-1, keepdims=True)
 
     user_id_Embedding_pooling = MaxPooling1D(pool_size=2, strides=2, padding="same")
     item_id_Embedding_pooling = MaxPooling1D(pool_size=2, strides=2, padding="same")
@@ -235,16 +223,9 @@ def get_model_1(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-    # Concatenate  组合
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
-
-    # Multiply  组合
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-
-    # Concatenate + Multiply 组合
-    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    # id_2 = Concatenate()([dense_1, dense_2, dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
-    id_1 = Concatenate()([id_2, id_1])
+    # id_1 = Concatenate()([id_2, id_1])
 
     id_1 = Dense(32)(id_1)
 
@@ -331,16 +312,10 @@ def get_model_2(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-    # Concatenate  组合
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
 
-    # Multiply  组合
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-
-    # Concatenate + Multiply 组合
-    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    # id_2 = Concatenate()([dense_1, dense_2, dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
-    id_1 = Concatenate()([id_2, id_1])
+    # id_1 = Concatenate()([id_2, id_1])
 
     id_1 = Dense(32)(id_1)
 
