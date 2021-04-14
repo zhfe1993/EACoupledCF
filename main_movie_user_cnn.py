@@ -6,15 +6,13 @@ import os
 import numpy as np
 import tensorflow as tf
 from keras import backend as K
-from keras.initializers import RandomNormal, TruncatedNormal
-from keras.layers import Dense, Activation, Flatten, Lambda, Reshape, MaxPooling2D, AveragePooling2D
-from keras.layers import Embedding, Input, Multiply, Conv2D, Dropout, Concatenate
+from keras.initializers import RandomNormal
+from keras.layers import Dense, Activation, Flatten, Lambda, Reshape
+from keras.layers import Embedding, Input, Multiply, Conv2D, Concatenate
 
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.regularizers import l2
-from keras.utils import plot_model
 
 from load_movie_data_cnn import load_itemGenres_as_matrix
 from load_movie_data_cnn import load_negative_file
@@ -56,6 +54,7 @@ def get_train_instances(users_attr_mat, ratings, items_genres_mat):
             item_id_input.append([j])
             item_attr_input.append(items_genres_mat[j])
             labels.append([0])
+
     # array_user_vec_input = np.array(user_vec_input)
     array_user_attr_input = np.array(user_attr_input)
     array_user_id_input = np.array(user_id_input)
@@ -87,38 +86,9 @@ def get_model_0(num_users, num_items):
 
     merge_attr_embedding = Lambda(lambda x: K.batch_dot(x[0], x[1], axes=[1, 2]))(
         [user_attr_embedding, item_attr_embedding])
-
     merge_attr_embedding_global = Flatten()(merge_attr_embedding)
-    # merge_attr_embedding = Reshape((8, 8, 1))(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = AveragePooling2D((2, 2))(merge_attr_embedding)
-    # merge_attr_embedding = Dropout(0.35)(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(32, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = MaxPooling2D((2, 2))(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-
-    # merge_attr_embedding = Flatten()(merge_attr_embedding)
-    # merge_attr_embedding = merge([merge_attr_embedding, merge_attr_embedding_global], mode='concat')
-
     attr_1 = Dense(16)(merge_attr_embedding_global)
     attr_1 = Activation('relu')(attr_1)
-
-    #    attr_1=BatchNormalization()(attr_1)
-    #    attr_1=Dropout(0.2)(attr_1)
-
-    # attr_2 = Dense(16)(attr_1)
-    # attr_2 = Activation('relu')(attr_2)
-    #    id_2=BatchNormalization()(id_2)
-    #    id_2=Dropout(0.2)(id_2)
 
     # ########################   id side   ##################################
 
@@ -139,57 +109,9 @@ def get_model_0(num_users, num_items):
     id_1 = Dense(64)(merge_id_embedding)
     id_1 = Activation('relu')(id_1)
 
-    # id_2 = Dense(32)(merge_id_embedding)
-    # id_2 = Activation('relu')(id_2)
-
-    #
-    # ###########改成CNN
-    # user_id_input = Input(shape=(1,), dtype='float32', name='user_id_input')
-    # user_id_Embedding = Embedding(input_dim=num_users, output_dim=64, name='user_id_Embedding',
-    #                               embeddings_initializer=TruncatedNormal(
-    #                                   mean=0.0, stddev=0.01, seed=None),input_length=1)
-    # user_id_Embedding = Flatten()(user_id_Embedding(user_id_input))
-    # user_id_Embedding = Reshape((1, 64))(user_id_Embedding)
-    #
-    # item_id_input = Input(shape=(1,), dtype='float32', name='item_id_input')
-    # item_id_Embedding = Embedding(input_dim=num_items, output_dim=64, name='item_id_Embedding',
-    #                               embeddings_initializer=TruncatedNormal(
-    #                                   mean=0.0, stddev=0.01, seed=None), input_length=1)
-    # item_id_Embedding = Flatten()(item_id_Embedding(item_id_input))
-    # item_id_Embedding = Reshape((64, 1))(item_id_Embedding)
-    #
-    # merge_id_embedding = Lambda(lambda x: K.batch_dot(x[0], x[1], axes=[1, 2]))(
-    #     [user_id_Embedding, item_id_Embedding])
-    #
-    # merge_id_embedding = Flatten()(merge_id_embedding)
-    #
-    # merge_id_embedding = Reshape((64, 64, 1))(merge_id_embedding)
-    #
-    # for i in range(6):
-    #     merge_id_embedding = Conv2D(filters= 32 ,kernel_size=(2, 2), strides=(2,2), padding="same", activation="relu")(
-    #         merge_id_embedding)
-    #
-    # merge_id_embedding = Flatten()(merge_id_embedding)
-    # id_1 = Dense(64)(merge_id_embedding)
-    # id_1 = Activation('relu')(id_1)
-    # print(id_1)
-    # merge attr_id embedding
-
     merge_attr_id_embedding = Concatenate()([attr_1, id_1])
     dense_1 = Dense(64)(merge_attr_id_embedding)
     dense_1 = Activation('relu')(dense_1)
-    # dense_1=BatchNormalization()(dense_1)
-    #    dense_1=Dropout(0.2)(dense_1)
-
-    # dense_2=Dense(16)(dense_1)
-    # dense_2=Activation('relu')(dense_2)
-    #    dense_2=BatchNormalization()(dense_2)
-    #    dense_2=Dropout(0.2)(dense_2)
-
-    # dense_3=Dense(8)(dense_2)
-    # dense_3=Activation('relu')(dense_3)
-    #    dense_3=BatchNormalization()(dense_3)
-    #    dense_3=Dropout(0.2)(dense_3)
 
     topLayer = Dense(1, activation='sigmoid', kernel_initializer='lecun_uniform',
                      name='topLayer')(dense_1)
@@ -219,26 +141,20 @@ def get_model_1(num_users, num_items):
     merge_attr_embedding = Lambda(lambda x: K.batch_dot(x[0], x[1], axes=[1, 2]))(
         [user_attr_embedding, item_attr_embedding])
 
-    # merge_attr_embedding_global = Flatten()(merge_attr_embedding)
-
     merge_attr_embedding = Reshape((8, 8, 1))(merge_attr_embedding)
-
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
     merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
     merge_attr_embedding = Activation('relu')(merge_attr_embedding)
 
     merge_attr_embedding = Flatten()(merge_attr_embedding)
-    # merge_attr_embedding = Concatenate()([merge_attr_embedding, merge_attr_embedding_global])
 
     attr_1 = Dense(16)(merge_attr_embedding)
     attr_1 = Activation('relu')(attr_1)
 
     ########################   id side   ##################################
-
     user_id_input = Input(shape=(1,), dtype='float32', name='user_id_input')
     user_id_Embedding = Embedding(input_dim=num_users, output_dim=32, name='user_id_Embedding',
                                   embeddings_initializer=RandomNormal(
@@ -254,49 +170,10 @@ def get_model_1(num_users, num_items):
     # id merge embedding
     merge_id_embedding = Multiply()([user_id_Embedding, item_id_Embedding])
 
-    # ###########改成CNN
-    # user_id_input = Input(shape=(1,), dtype='float32', name='user_id_input')
-    # user_id_Embedding = Embedding(input_dim=num_users, output_dim=64, name='user_id_Embedding',
-    #                               embeddings_initializer=TruncatedNormal(
-    #                                   mean=0.0, stddev=0.01, seed=None), input_length=1)
-    # user_id_Embedding = Flatten()(user_id_Embedding(user_id_input))
-    # user_id_Embedding = Reshape((1, 64))(user_id_Embedding)
-    #
-    # item_id_input = Input(shape=(1,), dtype='float32', name='item_id_input')
-    # item_id_Embedding = Embedding(input_dim=num_items, output_dim=64, name='item_id_Embedding',
-    #                               embeddings_initializer=TruncatedNormal(
-    #                                   mean=0.0, stddev=0.01, seed=None),input_length=1)
-    # item_id_Embedding = Flatten()(item_id_Embedding(item_id_input))
-    # item_id_Embedding = Reshape((1, 64))(item_id_Embedding)
-    #
-    # merge_id_embedding = Lambda(lambda x: K.batch_dot(x[0], x[1], axes=[1, 2]))(
-    #     [user_id_Embedding, item_id_Embedding])
-    #
-    # merge_id_embedding = Flatten()(merge_id_embedding)
-    # merge_id_embedding = Reshape((64, 64, 1))(merge_id_embedding)
-    # for i in range(6):
-    #     merge_id_embedding = Conv2D(filter= 32 ,kernel_size=(2, 2), strides=(2,2), padding="same", activation="relu")(
-    #         merge_id_embedding)
-    # merge_id_embedding = Dropout(1)(merge_id_embedding)
-    # merge_id_embedding = Flatten()(merge_id_embedding)
-
     # merge attr_id embedding
     merge_attr_id_embedding = Concatenate()([attr_1, merge_id_embedding])
     dense_1 = Dense(64)(merge_attr_id_embedding)
     dense_1 = Activation('relu')(dense_1)
-
-    # dense_1=BatchNormalization()(dense_1)
-    #    dense_1=Dropout(0.2)(dense_1)
-
-    # dense_2=Dense(16)(dense_1)
-    # dense_2=Activation('relu')(dense_2)
-    #    dense_2=BatchNormalization()(dense_2)
-    #    dense_2=Dropout(0.2)(dense_2)
-
-    # dense_3=Dense(8)(dense_2)
-    # dense_3=Activation('relu')(dense_3)
-    #    dense_3=BatchNormalization()(dense_3)
-    #    dense_3=Dropout(0.2)(dense_3)
 
     topLayer = Dense(1, activation='sigmoid', kernel_initializer='lecun_uniform',
                      name='topLayer')(dense_1)
@@ -313,7 +190,6 @@ def get_model_2(num_users, num_items):
     num_items = num_items + 1
 
     ########################   attr side   ##################################
-
     # Input
     user_attr_input = Input(shape=(30,), dtype='float32', name='user_attr_input')
     user_attr_embedding = Dense(8, activation='relu')(user_attr_input)
@@ -333,13 +209,6 @@ def get_model_2(num_users, num_items):
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
     merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = AveragePooling2D((2, 2))(merge_attr_embedding)
-    # merge_attr_embedding = Dropout(0.35)(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(32, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = MaxPooling2D((2, 2))(merge_attr_embedding)
 
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
@@ -350,13 +219,6 @@ def get_model_2(num_users, num_items):
 
     attr_1 = Dense(16)(merge_attr_embedding)
     attr_1 = Activation('relu')(attr_1)
-    #    attr_1=BatchNormalization()(attr_1)
-    #    attr_1=Dropout(0.2)(attr_1)
-
-    # attr_2 = Dense(16)(attr_1)
-    # attr_2 = Activation('relu')(attr_2)
-    #    id_2=BatchNormalization()(id_2)
-    #    id_2=Dropout(0.2)(id_2)
 
     ########################   id side   ##################################
 
@@ -374,8 +236,6 @@ def get_model_2(num_users, num_items):
 
     # id merge embedding
     merge_id_embedding = Multiply()([user_id_Embedding, item_id_Embedding])
-    # id_1 = Dense(64)(merge_id_embedding)
-    # id_1 = Activation('relu')(id_1)
 
     id_2 = Dense(32)(merge_id_embedding)
     id_2 = Activation('relu')(id_2)
@@ -384,18 +244,6 @@ def get_model_2(num_users, num_items):
     merge_attr_id_embedding = Concatenate()([attr_1, id_2])
     dense_1 = Dense(64)(merge_attr_id_embedding)
     dense_1 = Activation('relu')(dense_1)
-    # dense_1=BatchNormalization()(dense_1)
-    #    dense_1=Dropout(0.2)(dense_1)
-
-    # dense_2=Dense(16)(dense_1)
-    # dense_2=Activation('relu')(dense_2)
-    #    dense_2=BatchNormalization()(dense_2)
-    #    dense_2=Dropout(0.2)(dense_2)
-
-    # dense_3=Dense(8)(dense_2)
-    # dense_3=Activation('relu')(dense_3)
-    #    dense_3=BatchNormalization()(dense_3)
-    #    dense_3=Dropout(0.2)(dense_3)
 
     topLayer = Dense(1, activation='sigmoid', kernel_initializer='lecun_uniform',
                      name='topLayer')(dense_1)
@@ -419,7 +267,6 @@ def main():
     # load data
     num_users, users_attr_mat = load_user_attributes()
     num_items, items_genres_mat = load_itemGenres_as_matrix()
-    # users_vec_mat = load_user_vectors()
     ratings = load_rating_train_as_matrix()
 
     # load model

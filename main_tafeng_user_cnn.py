@@ -6,13 +6,12 @@ from time import time
 import numpy as np
 from keras import backend as K
 from keras.initializers import RandomNormal
-from keras.layers import Dense, Activation, Flatten, Lambda, Reshape, MaxPooling2D, AveragePooling2D
+from keras.layers import Dense, Activation, Flatten, Lambda, Reshape
 from keras.layers import Embedding, Input, merge, Conv2D
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.regularizers import l2
-from keras.utils import plot_model
 import os
 import tensorflow as tf
 from load_tafeng_data_cnn import load_itemGenres_as_matrix
@@ -94,35 +93,8 @@ def get_model_0(num_users, num_items):
 
     merge_attr_embedding_global = Flatten()(merge_attr_embedding)
 
-    # merge_attr_embedding = Reshape((8, 8, 1))(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = AveragePooling2D((2, 2))(merge_attr_embedding)
-    # merge_attr_embedding = Dropout(0.35)(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(32, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = MaxPooling2D((2, 2))(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-
-    # merge_attr_embedding = Flatten()(merge_attr_embedding)
-    # merge_attr_embedding = merge([merge_attr_embedding, merge_attr_embedding_global], mode='concat')
-
     attr_1 = Dense(16)(merge_attr_embedding_global)
     attr_1 = Activation('relu')(attr_1)
-    #    attr_1=BatchNormalization()(attr_1)
-    #    attr_1=Dropout(0.2)(attr_1)
-
-    # attr_2 = Dense(16)(attr_1)
-    # attr_2 = Activation('relu')(attr_2)
-    #    id_2=BatchNormalization()(id_2)
-    #    id_2=Dropout(0.2)(id_2)
 
     ########################   id side   ##################################
 
@@ -152,18 +124,6 @@ def get_model_0(num_users, num_items):
     merge_attr_id_embedding = merge([attr_1, id_2], mode='concat')
     dense_1 = Dense(64)(merge_attr_id_embedding)
     dense_1 = Activation('relu')(dense_1)
-    # dense_1=BatchNormalization()(dense_1)
-    #    dense_1=Dropout(0.2)(dense_1)
-
-    # dense_2=Dense(16)(dense_1)
-    # dense_2=Activation('relu')(dense_2)
-    #    dense_2=BatchNormalization()(dense_2)
-    #    dense_2=Dropout(0.2)(dense_2)
-
-    # dense_3=Dense(8)(dense_2)
-    # dense_3=Activation('relu')(dense_3)
-    #    dense_3=BatchNormalization()(dense_3)
-    #    dense_3=Dropout(0.2)(dense_3)
 
     topLayer = Dense(1, activation='sigmoid', init='lecun_uniform',
                      name='topLayer')(dense_1)
@@ -200,36 +160,20 @@ def get_model_1(num_users, num_items):
     merge_attr_embedding = Lambda(lambda x: K.batch_dot(x[0], x[1], axes=[1, 2]))(
         [user_attr_embedding, item_attr_embedding])
 
-    # merge_attr_embedding_global = Flatten()(merge_attr_embedding)
     merge_attr_embedding = Reshape((8, 8, 1))(merge_attr_embedding)
 
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
     merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = AveragePooling2D((2, 2))(merge_attr_embedding)
-    # merge_attr_embedding = Dropout(0.35)(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(32, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = MaxPooling2D((2, 2))(merge_attr_embedding)
 
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
     merge_attr_embedding = Activation('relu')(merge_attr_embedding)
 
     merge_attr_embedding = Flatten()(merge_attr_embedding)
-    # merge_attr_embedding = merge([merge_attr_embedding, merge_attr_embedding_global], mode='concat')
 
     attr_1 = Dense(16)(merge_attr_embedding)
     attr_1 = Activation('relu')(attr_1)
-    #    attr_1=BatchNormalization()(attr_1)
-    #    attr_1=Dropout(0.2)(attr_1)
-
-    # attr_2 = Dense(16)(attr_1)
-    # attr_2 = Activation('relu')(attr_2)
-    #    id_2=BatchNormalization()(id_2)
-    #    id_2=Dropout(0.2)(id_2)
 
     ########################   id side   ##################################
 
@@ -259,18 +203,6 @@ def get_model_1(num_users, num_items):
     merge_attr_id_embedding = merge([attr_1, id_2], mode='concat')
     dense_1 = Dense(64)(merge_attr_id_embedding)
     dense_1 = Activation('relu')(dense_1)
-    # dense_1=BatchNormalization()(dense_1)
-    #    dense_1=Dropout(0.2)(dense_1)
-
-    # dense_2=Dense(16)(dense_1)
-    # dense_2=Activation('relu')(dense_2)
-    #    dense_2=BatchNormalization()(dense_2)
-    #    dense_2=Dropout(0.2)(dense_2)
-
-    # dense_3=Dense(8)(dense_2)
-    # dense_3=Activation('relu')(dense_3)
-    #    dense_3=BatchNormalization()(dense_3)
-    #    dense_3=Dropout(0.2)(dense_3)
 
     topLayer = Dense(1, activation='sigmoid', init='lecun_uniform',
                      name='topLayer')(dense_1)
@@ -313,13 +245,6 @@ def get_model_2(num_users, num_items):
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
     merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = AveragePooling2D((2, 2))(merge_attr_embedding)
-    # merge_attr_embedding = Dropout(0.35)(merge_attr_embedding)
-
-    # merge_attr_embedding = Conv2D(32, (3, 3))(merge_attr_embedding)
-    # merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
-    # merge_attr_embedding = Activation('relu')(merge_attr_embedding)
-    # merge_attr_embedding = MaxPooling2D((2, 2))(merge_attr_embedding)
 
     merge_attr_embedding = Conv2D(8, (3, 3))(merge_attr_embedding)
     merge_attr_embedding = BatchNormalization(axis=3)(merge_attr_embedding)
@@ -330,13 +255,6 @@ def get_model_2(num_users, num_items):
 
     attr_1 = Dense(16)(merge_attr_embedding)
     attr_1 = Activation('relu')(attr_1)
-    #    attr_1=BatchNormalization()(attr_1)
-    #    attr_1=Dropout(0.2)(attr_1)
-
-    # attr_2 = Dense(16)(attr_1)
-    # attr_2 = Activation('relu')(attr_2)
-    #    id_2=BatchNormalization()(id_2)
-    #    id_2=Dropout(0.2)(id_2)
 
     ########################   id side   ##################################
 
@@ -366,18 +284,6 @@ def get_model_2(num_users, num_items):
     merge_attr_id_embedding = merge([attr_1, id_2], mode='concat')
     dense_1 = Dense(64)(merge_attr_id_embedding)
     dense_1 = Activation('relu')(dense_1)
-    # dense_1=BatchNormalization()(dense_1)
-    #    dense_1=Dropout(0.2)(dense_1)
-
-    # dense_2=Dense(16)(dense_1)
-    # dense_2=Activation('relu')(dense_2)
-    #    dense_2=BatchNormalization()(dense_2)
-    #    dense_2=Dropout(0.2)(dense_2)
-
-    # dense_3=Dense(8)(dense_2)
-    # dense_3=Activation('relu')(dense_3)
-    #    dense_3=BatchNormalization()(dense_3)
-    #    dense_3=Dropout(0.2)(dense_3)
 
     topLayer = Dense(1, activation='sigmoid', init='lecun_uniform',
                      name='topLayer')(dense_1)
@@ -448,7 +354,7 @@ def get_model_3(num_users, num_items):
 
 def main():
     learning_rate = 0.005
-    num_epochs = 30
+    num_epochs = 50
     verbose = 1
     topK = 10
     evaluation_threads = 1

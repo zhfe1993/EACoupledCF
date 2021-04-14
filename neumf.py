@@ -183,7 +183,7 @@ def get_model_2(num_users, num_items):
 
 def main():
     learning_rate = 0.001
-    num_epochs = 30
+    num_epochs = 50
     verbose = 1
     topK = 10
     evaluation_threads = 1
@@ -193,7 +193,6 @@ def main():
     # load data
     num_users, users_attr_mat = load_user_attributes()
     num_items, items_genres_mat = load_itemGenres_as_matrix()
-    # users_vec_mat = load_user_vectors()
     ratings = load_rating_train_as_matrix()
 
     # load model

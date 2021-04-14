@@ -11,9 +11,6 @@ import math
 import heapq  # for retrieval topK
 import multiprocessing
 import numpy as np
-from time import time
-
-# from numba import jit, autojit
 
 # Global variables that are shared across processes
 _model = None

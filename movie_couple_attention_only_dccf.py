@@ -4,16 +4,12 @@ import time
 from time import time
 import os
 import numpy as np
-from keras import backend as K
-from keras.initializers import RandomNormal,ones
-from keras.layers import Dense, Activation, Flatten, Lambda, Reshape, MaxPooling2D, AveragePooling2D
-from keras.layers import Embedding, Input, merge, Conv2D,MaxPooling1D,Add,Average,Concatenate,Multiply
-from keras.layers.normalization import BatchNormalization
+from keras.initializers import RandomNormal, ones
+from keras.layers import Dense, Activation, Flatten
+from keras.layers import Embedding, Input, merge, MaxPooling1D, Add, Average, Concatenate, Multiply
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.regularizers import l2
-from keras.utils import plot_model
-import  tensorflow as tf
+import tensorflow as tf
 from load_movie_data_cnn import load_itemGenres_as_matrix
 from load_movie_data_cnn import load_negative_file
 from load_movie_data_cnn import load_rating_file_as_list
@@ -21,12 +17,12 @@ from load_movie_data_cnn import load_rating_train_as_matrix
 from load_movie_data_cnn import load_user_attributes
 from evaluate_moive_couple_attention_only_dccf import evaluate_model
 
-
-os.environ["CUDA_VISIBLE_DEVICES"] = '0' #use GPU with ID=0
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'  # use GPU with ID=0
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.5 # maximun alloc gpu50% of MEM
-config.gpu_options.allow_growth = True #allocate dynamically
-sess = tf.Session(config = config)
+config.gpu_options.per_process_gpu_memory_fraction = 0.5  # maximun alloc gpu50% of MEM
+config.gpu_options.allow_growth = True  # allocate dynamically
+sess = tf.Session(config=config)
+
 
 def get_train_instances(users_attr_mat, ratings, items_genres_mat):
     user_attr_input, item_attr_input, user_id_input, item_id_input, labels = [], [], [], [], []
@@ -66,6 +62,7 @@ def get_train_instances(users_attr_mat, ratings, items_genres_mat):
 
     return array_user_attr_input, array_user_id_input, array_item_attr_input, array_item_id_input, array_labels
 
+
 def get_model_3(num_users, num_items):
     # only global coupling
     num_users = num_users + 1
@@ -87,8 +84,6 @@ def get_model_3(num_users, num_items):
 
     u_i_dot = Flatten()(merge([user_id_Embedding, item_id_Embedding], mode='dot'))
     u_i_cos = Flatten()(merge([user_id_Embedding, item_id_Embedding], mode='cos'))
-    # u_i_cos = -K.mean((K.l2_normalize(user_id_Embedding, axis=-1) * K.l2_normalize(item_id_Embedding, axis=-1)),
-    #                   axis=-1, keepdims=True)
 
     user_id_Embedding_pooling = MaxPooling1D(pool_size=2, strides=2, padding="same")
     item_id_Embedding_pooling = MaxPooling1D(pool_size=2, strides=2, padding="same")
@@ -104,30 +99,19 @@ def get_model_3(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-	'''
-	 Concatenate  组合	
-	'''
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
-    id_2 = Concatenate()([dense_1, dense_2,dense_3])
-    id_1 = Multiply()([dense_1, dense_2, dense_3])
+    # Concatenate  组合
+    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
 
-    id_1 = Concatenate()([id_1,id_2])
+    # Multiply  组合
+    # id_1 = Multiply()([dense_1, dense_2, dense_3])
+
+    # Concatenate + Multiply 组合
+    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    id_1 = Multiply()([dense_1, dense_2, dense_3])
+    id_1 = Concatenate()([id_1, id_2])
+
     id_1 = Dense(32)(id_1)
-	
-	
+
     id_1 = Flatten()(Activation('relu')(id_1))
     vector = Multiply()([u_i_dot, u_i_cos, id_1])
 
@@ -152,7 +136,6 @@ def main():
     # load data
     num_users, users_attr_mat = load_user_attributes()
     num_items, items_genres_mat = load_itemGenres_as_matrix()
-    # users_vec_mat = load_user_vectors()
     ratings = load_rating_train_as_matrix()
 
     # load model
@@ -175,7 +158,7 @@ def main():
         # Generate training instances
         user_attr_input, user_id_input, item_attr_input, item_id_input, labels = get_train_instances(users_attr_mat,
                                                                                                      ratings,
-                                                                                                 items_genres_mat)
+                                                                                                     items_genres_mat)
         hist = model.fit([user_id_input, item_id_input],
                          labels, epochs=1,
                          batch_size=256,
@@ -187,7 +170,7 @@ def main():
             testRatings = load_rating_file_as_list()
             testNegatives = load_negative_file()
             (hits, ndcgs, mrrs) = evaluate_model(model, testRatings, testNegatives,
-                                           topK, evaluation_threads)
+                                                 topK, evaluation_threads)
             hr, ndcg, mrr, loss = np.array(hits).mean(), np.array(ndcgs).mean(), np.array(mrrs).mean(), \
                                   hist.history['loss'][0]
             print('Iteration %d [%.1f s]: HR = %.4f, NDCG = %.4f, MRR = %.4f, loss = %.4f [%.1f s]'

@@ -5,15 +5,11 @@ from time import time
 import os
 import tensorflow as tf
 import numpy as np
-from keras import backend as K
-from keras.initializers import RandomNormal,ones
-from keras.layers import Dense, Activation, Flatten, Lambda, Reshape, MaxPooling2D, AveragePooling2D
-from keras.layers import Embedding, Input, merge, Conv2D,MaxPooling1D,Average,Add,Concatenate,Multiply
-from keras.layers.normalization import BatchNormalization
+from keras.initializers import RandomNormal
+from keras.layers import Dense, Activation, Flatten
+from keras.layers import Embedding, Input, merge, MaxPooling1D, Average, Add, Concatenate, Multiply
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.regularizers import l2
-from keras.utils import plot_model
 
 from load_tafeng_data_cnn import load_itemGenres_as_matrix
 from load_tafeng_data_cnn import load_negative_file
@@ -22,11 +18,12 @@ from load_tafeng_data_cnn import load_rating_train_as_matrix
 from load_tafeng_data_cnn import load_user_attributes
 from evaluate_tafeng_couple_attention_only_dccf import evaluate_model
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0' #use GPU with ID=0
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'  # use GPU with ID=0
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.5 # maximun alloc gpu50% of MEM
-config.gpu_options.allow_growth = True #allocate dynamically
-sess = tf.Session(config = config)
+config.gpu_options.per_process_gpu_memory_fraction = 0.5  # maximun alloc gpu50% of MEM
+config.gpu_options.allow_growth = True  # allocate dynamically
+sess = tf.Session(config=config)
+
 
 def get_train_instances(users_attr_mat, ratings, items_genres_mat):
     user_attr_input, item_attr_input, user_id_input, item_id_input, labels = [], [], [], [], []
@@ -66,8 +63,9 @@ def get_train_instances(users_attr_mat, ratings, items_genres_mat):
 
     return array_user_attr_input, array_user_id_input, array_item_attr_input, array_item_id_input, array_labels
 
+
 def get_model_3(num_users, num_items):
-    #id only (deep CF)
+    # id only (deep CF)
     num_users = num_users + 1
     num_items = num_items + 1
 
@@ -75,13 +73,13 @@ def get_model_3(num_users, num_items):
     user_id_input = Input(shape=(1,), dtype='float32', name='user_id_input')
     user_id_Embedding = Embedding(input_dim=num_users, output_dim=32, name='user_id_Embedding',
                                   embeddings_initializer=RandomNormal(
-                                      mean=0.0, stddev=0.01, seed=None),input_length=1)
+                                      mean=0.0, stddev=0.01, seed=None), input_length=1)
     user_id_Embedding = user_id_Embedding(user_id_input)
 
     item_id_input = Input(shape=(1,), dtype='float32', name='item_id_input')
     item_id_Embedding = Embedding(input_dim=num_items, output_dim=32, name='item_id_Embedding',
                                   embeddings_initializer=RandomNormal(
-                                      mean=0.0, stddev=0.01, seed=None),input_length=1)
+                                      mean=0.0, stddev=0.01, seed=None), input_length=1)
     item_id_Embedding = item_id_Embedding(item_id_input)
 
     u_i_dot = Flatten()(merge([user_id_Embedding, item_id_Embedding], mode='dot'))
@@ -101,26 +99,17 @@ def get_model_3(num_users, num_items):
     dense_2 = Dense(16, use_bias=False)(u_i_mul)
     dense_3 = Dense(16, use_bias=False)(u_i_avg)
 
-	'''
-	 Concatenate  组合	
-	'''
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
+    # Concatenate  组合
+    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
+
+    # Multiply  组合
     # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
-    id_2 = Concatenate()([dense_1, dense_2,dense_3])
+
+    # Concatenate + Multiply 组合
+    id_2 = Concatenate()([dense_1, dense_2, dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
-    id_1 = Concatenate()([id_1,id_2])
+    id_1 = Concatenate()([id_1, id_2])
+
     id_1 = Dense(32)(id_1)
 
     id_1 = Flatten()(Activation('relu')(id_1))
@@ -135,6 +124,7 @@ def get_model_3(num_users, num_items):
 
     return model
 
+
 def main():
     learning_rate = 0.0005
     num_epochs = 30
@@ -147,7 +137,6 @@ def main():
     # load data
     num_users, users_attr_mat = load_user_attributes()
     num_items, items_genres_mat = load_itemGenres_as_matrix()
-    # users_vec_mat = load_user_vectors()
     ratings = load_rating_train_as_matrix()
 
     # load model
@@ -183,8 +172,8 @@ def main():
         if epoch % verbose == 0:
             testRatings = load_rating_file_as_list()
             testNegatives = load_negative_file()
-            (hits, ndcgs, mrrs)= evaluate_model(model, testRatings, testNegatives,
-                                           topK, evaluation_threads)
+            (hits, ndcgs, mrrs) = evaluate_model(model, testRatings, testNegatives,
+                                                 topK, evaluation_threads)
             hr, ndcg, mrr, loss = np.array(hits).mean(), np.array(ndcgs).mean(), np.array(mrrs).mean(), \
                                   hist.history['loss'][0]
             print('Iteration %d [%.1f s]: HR = %.4f, NDCG = %.4f, MRR = %.4f, loss = %.4f [%.1f s]'

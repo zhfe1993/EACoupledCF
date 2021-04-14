@@ -1,5 +1,4 @@
 '''
-Created on Apr 15, 2016
 Evaluate the performance of Top-K recommendation:
     Protocol: leave-1-out evaluation
     Measures: Hit Ratio and NDCG
@@ -11,9 +10,6 @@ import math
 import heapq  # for retrieval topK
 import multiprocessing
 import numpy as np
-from time import time
-
-# from numba import jit, autojit
 
 # Global variables that are shared across processes
 _model = None

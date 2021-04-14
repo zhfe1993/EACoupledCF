@@ -5,14 +5,13 @@ from time import time
 
 import numpy as np
 from keras import backend as K
-from keras.initializers import RandomNormal, ones, get
-from keras.layers import Dense, Activation, Flatten, Lambda, Reshape, MaxPooling2D, AveragePooling2D
+from keras.initializers import RandomNormal, ones
+from keras.layers import Dense, Activation, Flatten, Lambda, Reshape
 from keras.layers import Embedding, Input, merge, Conv2D, MaxPooling1D, Add, Multiply, Average, Concatenate
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.regularizers import l2
-from keras.utils import plot_model
 
 from load_tafeng_data_cnn import load_itemGenres_as_matrix
 from load_tafeng_data_cnn import load_negative_file
@@ -139,38 +138,23 @@ def get_model_0(num_users, num_items):
     u_i_mul= Multiply()([user_id_Embedding, item_id_Embedding])
     u_i_avg = Average()([user_id_Embedding, item_id_Embedding])
 
-    # dense_1 = Dense(16,use_bias=False)(u_i_sum)
-    # dense_2 = Dense(16,use_bias=False)(u_i_mul)
-    # dense_3 = Dense(16,use_bias=False)(u_i_avg)
     dense_1 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_sum)
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-	'''
-	 Concatenate  组合	
-	'''
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
+    # Concatenate  组合
+    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
+
+    # Multiply  组合
     # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
+
+    # Concatenate + Multiply 组合
     id_2 = Concatenate()([dense_1, dense_2,dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
-
     id_1 = Concatenate()([id_1,id_2])
+
     id_1 = Dense(32)(id_1)
-	
-	
-	
+
     id_1 = Flatten()(Activation('relu')(id_1))
     id_1 = Multiply()([u_i_dot, u_i_cos, id_1])
     vector = merge(([attr_1, id_1]),mode='concat')
@@ -253,31 +237,20 @@ def get_model_1(num_users, num_items):
     dense_1 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_sum)
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
-	
-	
-	'''
-	 Concatenate  组合	
-	'''
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
+
+    # Concatenate  组合
+    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
+
+    # Multiply  组合
     # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
+
+    # Concatenate + Multiply 组合
     id_2 = Concatenate()([dense_1, dense_2,dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
     id_1 = Concatenate()([id_1,id_2])
+
     id_1 = Dense(32)(id_1)
-	
-	
+
     id_1 = Flatten()(Activation('relu')(id_1))
     id_1 = Multiply()([u_i_dot, u_i_cos, id_1])
 
@@ -368,30 +341,19 @@ def get_model_2(num_users, num_items):
     dense_1 = Dense(16, kernel_initializer=ones(),use_bias=False)(u_i_sum)
     dense_2 = Dense(16,kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16,kernel_initializer=ones(), use_bias=False)(u_i_avg)
+    # Concatenate  组合
+    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
 
-	'''
-	 Concatenate  组合	
-	'''
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
+    # Multiply  组合
     # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
+
+    # Concatenate + Multiply 组合
     id_2 = Concatenate()([dense_1, dense_2,dense_3])
     id_1 = Multiply()([dense_1, dense_2, dense_3])
     id_1 = Concatenate()([id_1,id_2])
+
     id_1 = Dense(32)(id_1)
-	
-	
+
     id_1 = Flatten()(Activation('relu')(id_1))
     id_1 = Multiply()([u_i_dot, u_i_cos, id_1])
 
@@ -418,7 +380,6 @@ def main():
     # load data
     num_users, users_attr_mat = load_user_attributes()
     num_items, items_genres_mat = load_itemGenres_as_matrix()
-    # users_vec_mat = load_user_vectors()
     ratings = load_rating_train_as_matrix()
 
     # load model

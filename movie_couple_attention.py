@@ -5,18 +5,16 @@ from time import time
 
 import numpy as np
 from keras import backend as K
-from keras.initializers import RandomNormal, TruncatedNormal, ones, get
+from keras.initializers import RandomNormal, ones
 from keras.layers import Dense, Activation, Flatten, Lambda, Reshape, MaxPooling1D
-from keras.layers import Embedding, Input, Add, Multiply, Conv2D, Dropout, Concatenate, Average, Dot, merge
+from keras.layers import Embedding, Input, Add, Multiply, Conv2D, Concatenate, Average, merge
 
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.regularizers import l2
 
 import os
 import tensorflow as tf
-from tensorflow.python.client.session import InteractiveSession
 
 from load_movie_data_cnn import load_itemGenres_as_matrix
 from load_movie_data_cnn import load_negative_file
@@ -142,29 +140,18 @@ def get_model_0(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-	'''
-	 Concatenate  组合	
-	'''
+    # Concatenate  组合
     # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
-    id_2 = Concatenate()([dense_1, dense_2,dense_3])
-    id_1 = Multiply()([dense_1, dense_2, dense_3])
 
-    id_1 = Concatenate()([id_2,id_1])
+    # Multiply  组合
+    # id_1 = Multiply()([dense_1, dense_2, dense_3])
+
+    # Concatenate + Multiply 组合
+    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    id_1 = Multiply()([dense_1, dense_2, dense_3])
+    id_1 = Concatenate()([id_2, id_1])
+
     id_1 = Dense(32)(id_1)
-	
     id_1 = Flatten()(Activation('relu')(id_1))
     id_1 = Multiply()([u_i_dot, u_i_cos, id_1])
 
@@ -248,29 +235,18 @@ def get_model_1(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-	'''
-	 Concatenate  组合	
-	'''
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
-    id_2 = Concatenate()([dense_1, dense_2,dense_3])
-    id_1 = Multiply()([dense_1, dense_2, dense_3])
+    # Concatenate  组合
+    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
 
-    id_1 = Concatenate()([id_2,id_1])
+    # Multiply  组合
+    # id_1 = Multiply()([dense_1, dense_2, dense_3])
+
+    # Concatenate + Multiply 组合
+    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    id_1 = Multiply()([dense_1, dense_2, dense_3])
+    id_1 = Concatenate()([id_2, id_1])
+
     id_1 = Dense(32)(id_1)
-	
 
     id_1 = Multiply()([u_i_dot, u_i_cos, id_1])
 
@@ -340,8 +316,6 @@ def get_model_2(num_users, num_items):
 
     u_i_dot = Flatten()(merge([user_id_Embedding, item_id_Embedding], mode='dot'))
     u_i_cos = Flatten()(merge([user_id_Embedding, item_id_Embedding], mode='cos'))
-    # u_i_cos = -K.mean((K.l2_normalize(user_id_Embedding, axis=-1) * K.l2_normalize(item_id_Embedding, axis=-1)),
-    #                   axis=-1, keepdims=True)
 
     user_id_Embedding_pooling = MaxPooling1D(pool_size=2, strides=2, padding="same")
     item_id_Embedding_pooling = MaxPooling1D(pool_size=2, strides=2, padding="same")
@@ -357,31 +331,19 @@ def get_model_2(num_users, num_items):
     dense_2 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_mul)
     dense_3 = Dense(16, kernel_initializer=ones(), use_bias=False)(u_i_avg)
 
-	'''
-	 Concatenate  组合	
-	'''
-    # id_1 = Concatenate()([dense_1, dense_2,dense_3])  
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	 Multiply  组合	
-	'''	
-    # id_1 = Multiply()([dense_1, dense_2, dense_3])
-	# id_1 = Dense(32)(id_1)
-	
-	
-	'''
-	Concatenate + Multiply 组合	
-	'''
-    id_2 = Concatenate()([dense_1, dense_2,dense_3])
-    id_1 = Multiply()([dense_1, dense_2, dense_3])
+    # Concatenate  组合
+    # id_1 = Concatenate()([dense_1, dense_2,dense_3])
 
-    id_1 = Concatenate()([id_2,id_1])
+    # Multiply  组合
+    # id_1 = Multiply()([dense_1, dense_2, dense_3])
+
+    # Concatenate + Multiply 组合
+    id_2 = Concatenate()([dense_1, dense_2, dense_3])
+    id_1 = Multiply()([dense_1, dense_2, dense_3])
+    id_1 = Concatenate()([id_2, id_1])
+
     id_1 = Dense(32)(id_1)
-	
-	
-	
+
     id_1 = Flatten()(Activation('relu')(id_1))
     id_1 = Multiply()([u_i_dot, u_i_cos, id_1])
     vector = Concatenate()([attr_1, id_1])
@@ -442,8 +404,9 @@ def main():
             testRatings = load_rating_file_as_list()
             testNegatives = load_negative_file()
             (hits, ndcgs, mrrs) = evaluate_model(model, testRatings, testNegatives,
-                                                users_attr_mat, items_genres_mat, topK, evaluation_threads)
-            hr, ndcg, mrr, loss = np.array(hits).mean(), np.array(ndcgs).mean(),np.array(mrrs).mean(), hist.history['loss'][0]
+                                                 users_attr_mat, items_genres_mat, topK, evaluation_threads)
+            hr, ndcg, mrr, loss = np.array(hits).mean(), np.array(ndcgs).mean(), np.array(mrrs).mean(), \
+                                  hist.history['loss'][0]
             print('Iteration %d [%.1f s]: HR = %.4f, NDCG = %.4f, MRR = %.4f, loss = %.4f [%.1f s]'
                   % (epoch, t2 - t1, hr, ndcg, mrr, loss, time() - t2))
             if hr > best_hr:
@@ -457,7 +420,7 @@ def main():
     endTime = time()
     print("End. best HR = %.4f, best NDCG = %.4f,best_mrr = %.4f, time = %.1f s" %
           (best_hr, best_ndcg, best_mrr, endTime - startTime))
-    print('HR = %.4f, NDCG = %.4f, MRR = %.4f' % (hr, ndcg , mrr))
+    print('HR = %.4f, NDCG = %.4f, MRR = %.4f' % (hr, ndcg, mrr))
 
 
 if __name__ == '__main__':
