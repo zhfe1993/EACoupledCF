@@ -1,5 +1,5 @@
 ## EACoupledCF
-This is about the code implementation of the paper EACoupledCF
+This is about the code' some introduce information  of the  EACoupledCF
 
 ## Citation
 '''
